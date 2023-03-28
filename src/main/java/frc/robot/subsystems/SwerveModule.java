@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
@@ -77,8 +78,12 @@ public class SwerveModule {
             turningEncoder.setPosition(getAbsoluteEncoderRad());
         }
 
-        public SwerveModuleState getState() {
+        public SwerveModuleState getModuleState() {
             return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));
+        }
+
+        public SwerveModulePosition getModulePosition() {
+            return new SwerveModulePosition(getDrivePositon(), new Rotation2d(getTurningPosition()));
         }
 
         public void setDesiredState(SwerveModuleState state) {
@@ -87,7 +92,7 @@ public class SwerveModule {
                 return;
             }
 
-            state = SwerveModuleState.optimize(state, getState().angle);
+            state = SwerveModuleState.optimize(state, getModuleState().angle);
             driveMotor.set(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
             turningMotor.set(turningPidController.calculate(getTurningPosition(), state.angle.getRadians()));
             SmartDashboard.putString("Swerve [" + absoluteEncoder.getChannel() + "] state", state.toString());
